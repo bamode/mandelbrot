@@ -19,8 +19,8 @@ impl fmt::Display for ColorError {
         write!(f, "using the default color (wikipedia)",)
     }
 }
-pub struct ColorList<'a> { list: [&'a str; 5] }
-pub const COLORLIST: ColorList = ColorList{ list: ["wikipedia (default)", "viridis", "magma", "inferno", "plasma"] };
+pub struct ColorList<'a> { list: [&'a str; 7] }
+pub const COLORLIST: ColorList = ColorList{ list: ["wikipedia (default)", "viridis", "magma", "inferno", "plasma", "vaporwave", "vaportest"] };
 
 impl<'a> fmt::Display for ColorList<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

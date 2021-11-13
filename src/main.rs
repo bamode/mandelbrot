@@ -9,8 +9,8 @@ mod monocub;
 use fractal::{parse_complex, parse_pair, pixel_to_point, render_julia, render_mandel, render_burningship, write_image};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let matches: ArgMatches = App::new("frac-rs")
-                          .version("1.1.0")
+    let matches: ArgMatches = App::new("mandelbrot")
+                          .version("1.1.1")
                           .author("Brent Mode <bmode@wisc.edu")
                           .about("creates mandelbrot and julia set images")
                           .subcommand(App::new("julia")
@@ -36,9 +36,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                       .arg(Arg::new("SEED")
                                            .short('s')
                                            .long("seed")
-                                           .about("Set the seed for the Julia set image\nEx: 0.4,0.6    (0.4 + 0.6i)")
+                                           .about("Set the seed for the Julia set image\nEx: -0.4,0.6    (-0.4 + 0.6i)")
                                            .takes_value(true)
-                                           .required(false)))
+                                           .required(false))
+                                      .after_help("Full example:\nmandelbrot julia --color=vaportest --seed=-0.4,0.6 -- julia.png 5000x5000 -2,2 2,-2"))
                           .subcommand(App::new("mandel")
                                       .about("creates a mandelbrot set image")
                                       .arg(Arg::new("FILE")
@@ -56,14 +57,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                       .arg(Arg::new("COLORSCHEME")
                                            .short('c')
                                            .long("color")
-                                           .about(&*(format!("Set the color scheme from:\n\t[{}]", color::COLORLIST)))
+                                           .about(&*(format!("Set the color scheme from:\n{}", color::COLORLIST)))
                                            .takes_value(true)
                                            .required(false))
                                       .arg(Arg::new("ALTFN")
                                            .short('a')
                                            .long("altfn")
                                            .about("For now, just uses the burning ship fractal in place of the Mandelbrot fractal")
-                                           .required(false))).get_matches();
+                                           .required(false))
+                                      .after_help("Full example:\nmandelbrot mandel --color=vaportest --altfn -- bs.png 5000x5000 -2,2 2,-2"))
+                          .after_help("Full example:\nmandelbrot julia --color=vaportest --seed=-0.4,0.6 -- julia.png 5000x5000 -2,2 2,-2").get_matches();
 
     if let Some(ref matches) = matches.subcommand_matches("julia") {
         let (file, bounds, upper_left, lower_right, colors) = common_args(*matches);
