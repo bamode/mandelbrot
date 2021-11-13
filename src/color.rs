@@ -1,4 +1,9 @@
 use std::fmt;
+use nom::{
+    IResult,
+    bytes::complete::{tag, take_while_m_n},
+    combinator::map_res,
+    sequence::tuple};
 
 use crate::monocub::{monotonic_cubic_preprocess, interpolate};
 
@@ -9,9 +14,18 @@ pub enum ColorError {
 
 impl std::error::Error for ColorError { }
 
-impl std::fmt::Display for ColorError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for ColorError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "using the default color (wikipedia)",)
+    }
+}
+pub struct ColorList<'a> { list: [&'a str; 5] }
+pub const COLORLIST: ColorList = ColorList{ list: ["wikipedia (default)", "viridis", "magma", "inferno", "plasma"] };
+
+impl<'a> fmt::Display for ColorList<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let list: String = self.list.iter().map(|s: &&str| format!("{}\n", *s)).collect();
+        write!(f, "{}", list)
     }
 }
 
@@ -23,6 +37,8 @@ pub fn colors(color: &str) -> Result<[Color; 2048], ColorError> {
         "magma" => return Ok(get_magma()),
         "inferno" => return Ok(get_inferno()),
         "plasma" => return Ok(get_plasma()),
+        "vaporwave" => return Ok(get_vaporwave()),
+        "vaportest" => return Ok(get_vaportest()),
         _ => {
             eprintln!("{}", ColorError::Error);
             return Ok(get_wiki())
@@ -37,6 +53,40 @@ fn get_wiki() -> [Color; 2048] {
     let reds: [u8; N] = [0, 66, 237, 255, 0, 0];
     let greens: [u8; N] = [7, 107, 255, 170, 2, 7];
     let blues: [u8; N] = [100, 203, 255, 0, 0, 100];
+
+    process_colors(&knots, &reds, &greens, &blues)
+}
+
+fn get_vaporwave() -> [Color; 2048] {
+    const N: usize = 7;
+    let knots: [f64; N] = (0..N).into_iter().map(|x| x as f64 / ((N - 1) as f64)).collect::<Vec<f64>>().try_into().unwrap();
+    let mut reds = [0u8; N];
+    let mut greens = [0u8; N];
+    let mut blues = [0u8; N];
+    let hex_colors = ["0x300350", "0x94167f", "0xe93479", "0xf9ac53", "0xf62e97", "0x153cb4", "0x300350"];
+    for (i, hex) in hex_colors.into_iter().enumerate() {
+        let (_, hex) = hex_color(hex).unwrap();
+        reds[i] = hex.red;
+        greens[i] = hex.green;
+        blues[i] = hex.blue;
+    }
+
+    process_colors(&knots, &reds, &greens, &blues)
+}
+
+fn get_vaportest() -> [Color; 2048] {
+    const N: usize = 4;
+    let knots: [f64; N] = (0..N).into_iter().map(|x| x as f64 / ((N - 1) as f64)).collect::<Vec<f64>>().try_into().unwrap();
+    let mut reds = [0u8; N];
+    let mut greens = [0u8; N];
+    let mut blues = [0u8; N];
+    let hex_colors = ["0xff00ff", "0x00ffff", "0xfbb03b", "0xff00ff"];
+    for (i, hex) in hex_colors.into_iter().enumerate() {
+        let (_, hex) = hex_color(hex).unwrap();
+        reds[i] = hex.red;
+        greens[i] = hex.green;
+        blues[i] = hex.blue;
+    }
 
     process_colors(&knots, &reds, &greens, &blues)
 }
@@ -130,4 +180,33 @@ impl fmt::Display for Color {
 pub fn color(colors: &[Color], count: usize) -> Color {    
     let color_i = (((count as f64).log2() * 256.0 + 000.0) * 1.7) as usize % colors.len();
     colors[color_i]
+}
+  
+#[derive(Debug,PartialEq)]
+pub struct HexColor {
+pub red:     u8,
+pub green:   u8,
+pub blue:    u8,
+}
+
+fn from_hex(input: &str) -> Result<u8, std::num::ParseIntError> {
+u8::from_str_radix(input, 16)
+}
+
+fn is_hex_digit(c: char) -> bool {
+c.is_digit(16)
+}
+
+fn hex_primary(input: &str) -> IResult<&str, u8> {
+map_res(
+    take_while_m_n(2, 2, is_hex_digit),
+    from_hex
+)(input)
+}
+
+fn hex_color(input: &str) -> IResult<&str, HexColor> {
+let (input, _) = tag("0x")(input)?;
+let (input, (red, green, blue)) = tuple((hex_primary, hex_primary, hex_primary))(input)?;
+
+Ok((input, HexColor { red, green, blue }))
 }
