@@ -178,7 +178,7 @@ impl fmt::Display for Color {
 }
 
 pub fn color(colors: &[Color], count: usize) -> Color {    
-    let color_i = (((count as f64).log2() * 256.0 + 000.0) * 1.7) as usize % colors.len();
+    let color_i = (((count as f64).log2() * 256.0 + 0.0) * 1.7) as usize % colors.len();
     colors[color_i]
 }
   

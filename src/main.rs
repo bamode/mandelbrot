@@ -77,7 +77,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         } else {
             seed = Complex{ re: 0.4, im: 0.6 };
         }
-
         create_julia(file, bounds, upper_left, lower_right, seed, colors);
     } else if let Some(ref matches) = matches.subcommand_matches("mandel") {
         let (file, bounds, upper_left, lower_right, colors) = common_args(*matches);
@@ -140,7 +139,7 @@ pub fn create_julia(file: &str,
                     upper_left: Complex<f64>, 
                     lower_right: Complex<f64>,
                     seed: Complex<f64>,
-                    colors: [color::Color; 2048],) {
+                    colors: [color::Color; 2048]) {
     
     let mut pixels = vec![0; (bounds.0 * 3) * bounds.1]; // * 3 for rgb
 
