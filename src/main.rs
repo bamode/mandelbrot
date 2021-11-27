@@ -13,7 +13,7 @@ use render::{create_julia, create_mandel};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches: ArgMatches = App::new("mandelbrot")
                           .version("1.2.1")
-                          .author("Brent Mode <bmode@wisc.edu")
+                          .author("Brent Mode <bmode@wisc.edu>")
                           .about("creates mandelbrot and julia set images")
                           .subcommand(App::new("julia")
                                       .about("creates a julia set image")
