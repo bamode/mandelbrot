@@ -1,3 +1,17 @@
+/// Though currently just part of this Mandelbrot plotting library
+/// for easily generating color schemes on the fly during execution,
+/// these are almost general purpose implementations of monotonic
+/// cubic interpolation. This differs from linear interpolation and 
+/// normal cubic spline interpolation by guaranteeing that the
+/// resultant interpolated function is monotonic.
+/// 
+/// This particular function takes in y-axis data -- in this use case
+/// an 8-bit single-color basis array (as in the R only in RGB) -- and 
+/// a corresponding set of x-axis points, or knots, which in this case
+/// are on the interval [0, 1], and returns a `Vec<f64>` of the 
+/// appropriate preprocessed points that guarantee normal cubic
+/// spline interpolation will yield a monotonic result.
+
 pub fn monotonic_cubic_preprocess(y: &[u8], knots: &[f64]) -> Vec<f64> {
     let n: usize = y.len();
     let mut slopes: Vec<f64> = Vec::new();
@@ -52,6 +66,20 @@ pub fn monotonic_cubic_preprocess(y: &[u8], knots: &[f64]) -> Vec<f64> {
     return Vec::from(m)
 }
 
+/// This function does the actual interpolation given the x and y data
+/// from before, as well as the preprocessing output, on a single 
+/// `f64` input `x`. Currently, this returns a `u8` to match the desired
+/// use case of interpolating an arbitrarily detailed color scheme out 
+/// of control points. The user currently needs to iterate this themselves
+/// in order to put the output into an array. One could imagine though
+/// simply making the number of output points a function input and
+/// returning a vector of the same type as the y data.
+/// 
+/// Future work on this might include trying to write a general purpose
+/// version of this code using generic type parameters. That's hard and
+/// requires thinking, so we'll hold off on that until it seems like a 
+/// fun thing to try and do.
+
 pub fn interpolate(x: f64, knots: &[f64], y: &[u8], m: &Vec<f64>) -> u8 {
     let n: usize = knots.len();
     if x >= knots[n - 1] {
@@ -69,6 +97,9 @@ pub fn interpolate(x: f64, knots: &[f64], y: &[u8], m: &Vec<f64>) -> u8 {
     }
     panic!("should be logically impossible")
 }
+
+/// The monotonic cubic interpolation is performed using Hermite
+/// polynomials. 
 
 #[inline]
 fn h00(t: f64) -> f64 {
