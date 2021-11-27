@@ -10,9 +10,9 @@ mod render;
 use args::{common_args, parse_complex};
 use render::{create_julia, create_mandel};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
     let matches: ArgMatches = App::new("mandelbrot")
-                          .version("1.2.1")
+                          .version("0.1.0")
                           .author("Brent Mode <bmode@wisc.edu>")
                           .about("creates mandelbrot and julia set images")
                           .subcommand(App::new("julia")
@@ -88,6 +88,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             create_mandel(file, bounds, upper_left, lower_right, colors, false);
         }
     }
-
-    Ok(())
 }

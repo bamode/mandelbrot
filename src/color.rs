@@ -20,7 +20,7 @@ impl fmt::Display for ColorError {
     }
 }
 pub struct ColorList<'a> { list: [&'a str; 7] }
-pub const COLORLIST: ColorList = ColorList{ list: ["wikipedia (default)", "viridis", "magma", "inferno", "plasma", "vaporwave", "vaportest"] };
+pub const COLORLIST: ColorList = ColorList { list: ["wikipedia (default)", "viridis", "magma", "inferno", "plasma", "vaporwave", "vaportest"] };
 
 impl<'a> fmt::Display for ColorList<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -151,6 +151,10 @@ fn get_plasma() -> [Color; 2048] {
     process_colors(&knots, &reds, &greens, &blues)
 }
 
+/// This function takes our control points (x-coordinates) and the colors
+/// and performs cubic interpolation to create the actual used color
+/// palette.
+
 fn process_colors(knots: &[f64], reds: &[u8], greens: &[u8], blues: &[u8]) -> [Color; 2048] {
     let m_reds = monotonic_cubic_preprocess(&reds, &knots);
     let m_greens = monotonic_cubic_preprocess(&greens, &knots);
@@ -168,6 +172,7 @@ fn process_colors(knots: &[f64], reds: &[u8], greens: &[u8], blues: &[u8]) -> [C
     colors
 }
 
+/// Represents 8-bit RGB colors as a tuple struct of `u8` integers.
 #[derive(Copy, Clone, Debug)]
 pub struct Color(pub u8, pub u8, pub u8);
 
@@ -177,11 +182,26 @@ impl fmt::Display for Color {
     }
 }
 
+/// Convert an escape time for an escape time fractal into an RGB
+/// color from the chosen color palette. Specifically, we apply some
+/// shaping to the count in order to make a nicer picture. If we sample
+/// the color space linearly in escape time, the resulting image
+/// is usually quite dull because the escape times for most of these
+/// fractals are not linearly distributed. Anyway, the 0.0 constant
+/// in particular can be adjusted to try and achieve different, 
+/// potentially nicer effects. Something like 300.0 can get nice results.
+/// The function applied to the count is then rounded into a `usize` so it
+/// can function as an array index and taken modulo the length of the
+/// color palette to make sure the index is within range.
+
 pub fn color(colors: &[Color], count: usize) -> Color {    
     let color_i = (((count as f64).log2() * 256.0 + 0.0) * 1.7) as usize % colors.len();
     colors[color_i]
 }
-  
+
+/// Below is some simple code using the `nom` library to parse hex colors
+/// into RGB `Color` instances. A nice TODO: might be to support 0#
+/// hex tags in addition to 0x hex tags.
 #[derive(Debug,PartialEq)]
 pub struct HexColor {
     pub red:     u8,
