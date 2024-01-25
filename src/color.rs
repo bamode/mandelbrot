@@ -184,29 +184,35 @@ pub fn color(colors: &[Color], count: usize) -> Color {
   
 #[derive(Debug,PartialEq)]
 pub struct HexColor {
-pub red:     u8,
-pub green:   u8,
-pub blue:    u8,
+    pub red:     u8,
+    pub green:   u8,
+    pub blue:    u8,
+}
+
+impl HexColor {
+    pub fn new(red: u8, green: u8, blue: u8) -> Self {
+        HexColor { red, green, blue }
+    }
 }
 
 fn from_hex(input: &str) -> Result<u8, std::num::ParseIntError> {
-u8::from_str_radix(input, 16)
+    u8::from_str_radix(input, 16)
 }
 
 fn is_hex_digit(c: char) -> bool {
-c.is_digit(16)
+    c.is_digit(16)
 }
 
 fn hex_primary(input: &str) -> IResult<&str, u8> {
-map_res(
-    take_while_m_n(2, 2, is_hex_digit),
-    from_hex
-)(input)
+    map_res(
+        take_while_m_n(2, 2, is_hex_digit),
+        from_hex
+    )(input)
 }
 
 fn hex_color(input: &str) -> IResult<&str, HexColor> {
-let (input, _) = tag("0x")(input)?;
-let (input, (red, green, blue)) = tuple((hex_primary, hex_primary, hex_primary))(input)?;
+    let (input, _) = tag("0x")(input)?;
+    let (input, (red, green, blue)) = tuple((hex_primary, hex_primary, hex_primary))(input)?;
 
-Ok((input, HexColor { red, green, blue }))
+    Ok((input, HexColor::new(red, green, blue)))
 }

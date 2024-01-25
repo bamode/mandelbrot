@@ -206,6 +206,7 @@ mod test {
         assert_eq!(parse_pair::<i32>("10,20", ','), Some((10, 20)));
         assert_eq!(parse_pair::<f64>("0.5x", 'x'), None);
         assert_eq!(parse_pair::<f64>("0.5x1.5", 'x'), Some((0.5, 1.5)));
+        assert_eq!(parse_pair::<usize>("1920x1080", 'x'), Some((1920, 1080)));
     }
 
     #[test]
